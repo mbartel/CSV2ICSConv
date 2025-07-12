@@ -8,6 +8,8 @@ import java.nio.file.Paths;
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.ValidationException;
 import org.mbartel.csv2icsconv.cal.Calendar;
+import org.mbartel.csv2icsconv.csv.CSVParser;
+import org.mbartel.csv2icsconv.csv.XstReaderBean;
 
 /**
  * CSV to ISC converter
@@ -20,8 +22,6 @@ public class CSV2ICSConv {
     public static final int EXIT_FAILED_READ_INFILE = 1;
     public static final int EXIT_FAILED_WRITE_OUTFILE = 2;
     public static final int EXIT_FAILED_UID_GEN = 3;
-
-    public static final char CSV_SEPARATOR = ';';
 
     // turn off "INFO: ical4j.properties not found." log message
     static {
@@ -50,7 +50,7 @@ public class CSV2ICSConv {
         final Reader reader = getReader(inputfile);
 
         final Calendar calendar = new Calendar();
-        CSVBean.parseCSV(reader, CSV_SEPARATOR).forEach(csvBean -> calendar.addEvent(
+        CSVParser.parse(reader, XstReaderBean.class).forEach(csvBean -> calendar.addEvent(
                 csvBean.getSummary(),
                 csvBean.getStartDate(),
                 csvBean.getEndDate(),

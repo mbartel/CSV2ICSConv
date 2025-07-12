@@ -1,19 +1,15 @@
-package org.mbartel.csv2icsconv;
+package org.mbartel.csv2icsconv.csv;
 
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvDate;
-import com.opencsv.bean.CsvToBean;
-import com.opencsv.bean.CsvToBeanBuilder;
-import java.io.Reader;
 import java.util.Date;
-import java.util.List;
 
 /**
- * CSV reader bean
+ * CSV bean for XstReader (https://github.com/Dijji/XstReader)
  *
  * @author mbartel
  */
-public class CSVBean {
+public class XstReaderBean implements CSVBean {
 
     // CSV date pattern for 31.10.2016 23:00:00
     private final static String DATE_PATTERN = "dd.MM.yyyy HH:mm:ss";
@@ -36,27 +32,33 @@ public class CSVBean {
     @CsvDate(value = DATE_PATTERN)
     private Date endDate;
 
+    @Override
     public String getSummary() {
         return summary;
     }
 
+    @Override
     public Date getCreationDate() {
         return creationDate;
     }
 
+    @Override
     public String getDescription() {
         return description;
     }
 
+    @Override
     public Date getStartDate() {
         return startDate;
     }
 
+    @Override
     public Date getEndDate() {
         return endDate;
     }
 
-    private boolean isNotEmpty() {
+    @Override
+    public boolean isNotEmpty() {
         return summary != null
                 || description != null
                 || creationDate != null
@@ -66,20 +68,10 @@ public class CSVBean {
 
     @Override
     public String toString() {
-        return "creationDate: " + creationDate + 
-                ", startDate: " + startDate + 
-                ", endDate: " + endDate + 
-                ", summary: " + summary +
-                ", description: " + description;
-    }
-
-    public static List<CSVBean> parseCSV(final Reader reader, final char separator) {
-        final CsvToBean<CSVBean> csvToBean = new CsvToBeanBuilder<CSVBean>(reader)
-                .withType(CSVBean.class)
-                .withSeparator(separator)
-                .build();
-        return csvToBean.stream()
-                .filter(CSVBean::isNotEmpty)
-                .toList();
+        return "creationDate: " + creationDate
+                + ", startDate: " + startDate
+                + ", endDate: " + endDate
+                + ", summary: " + summary
+                + ", description: " + description;
     }
 }
