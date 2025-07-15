@@ -1,6 +1,5 @@
 package org.mbartel.csv2icsconv.cal;
 
-import java.net.SocketException;
 import java.util.Date;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
@@ -51,10 +50,10 @@ public class Calendar extends net.fortuna.ical4j.model.Calendar {
      * @param description the description
      */
     public void addEvent(final String summary, final Date startDate, final Date endDate, final Date creationDate, final String description) {
-        final VEvent event = addEvent(summary, startDate, endDate);
+        final VEvent event = addEvent(cleanUpStr(summary), startDate, endDate);
 
         event.getProperties().add(new net.fortuna.ical4j.model.property.Created(new DateTime(creationDate)));
-        event.getProperties().add(new net.fortuna.ical4j.model.property.Description(description));
+        event.getProperties().add(new net.fortuna.ical4j.model.property.Description(cleanUpStr(description)));
     }
 
     /**
@@ -64,7 +63,11 @@ public class Calendar extends net.fortuna.ical4j.model.Calendar {
     public int getEventCount() {
         return getComponents().size();
     }
-   
+
+    private String cleanUpStr(final String str) {
+        return str.replaceAll("[^\\x00-\\xFF]", "").trim();
+    }
+
     private TzId getTimeZoneId() {
         if (timeZoneId == null) {
             timeZoneId = TimeZoneRegistryFactory.getInstance().createRegistry().getTimeZone("Europe/Berlin").getVTimeZone().getTimeZoneId();
@@ -73,11 +76,8 @@ public class Calendar extends net.fortuna.ical4j.model.Calendar {
     }
 
     private UidGenerator getUidGenerator() {
-        try {
-            uidGenerator = new UidGenerator(RandomStringUtils.random(5));
-        } catch (final SocketException ex) {
-            System.out.println("Error creating Universal ID generator in " + getClass().getCanonicalName());
-            System.exit(CSV2ICSConv.EXIT_FAILED_UID_GEN);
+        if (uidGenerator == null) {
+            uidGenerator = new UidGenerator(() -> RandomStringUtils.randomAlphanumeric(5), CSV2ICSConv.class.getSimpleName());
         }
         return uidGenerator;
     }
